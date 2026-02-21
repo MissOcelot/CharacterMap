@@ -119,62 +119,25 @@ net.set_options("""
   }
 }
 """)
+net.write_html("index.html")
 
-# ======================
-# CLICK-TO-FOCUS + RESET BUTTON
-# ======================
+# Read the generated HTML
+with open("index.html", "r", encoding="utf-8") as f:
+    html = f.read()
 
-# We use a template string to inject the button and the click handler
-# The button is added to the document body via JS to ensure it appears over the map.
-focus_script = """
-<script>
-window.addEventListener('load', function() {
-    // 1. Add "Show Full Map" button to the UI
-    let btnDiv = document.createElement("div");
-    btnDiv.style = "position:absolute; top:20px; left:20px; z-index:1000;";
-    btnDiv.innerHTML = `
-        <button id="resetBtn" style="padding:12px 24px; font-size:16px; font-weight:bold; 
-        background-color:#007ACC; color:white; border:none; border-radius:8px; 
-        cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            Show Full Map
-        </button>`;
-    document.body.appendChild(btnDiv);
+# Read your custom additions
+with open("htmlstuff.txt", "r", encoding="utf-8") as f:
+    extra = f.read()
 
-    // 2. Define the reset functionality
-    document.getElementById("resetBtn").onclick = function() {
-        let allNodes = network.body.data.nodes.get();
-        let allEdges = network.body.data.edges.get();
-        
-        network.body.data.nodes.update(allNodes.map(n => ({id: n.id, hidden: false})));
-        network.body.data.edges.update(allEdges.map(e => ({id: e.id, hidden: false})));
-    };
+# Inject before closing </body>
+html = html.replace("</body>", extra + "\n</body>")
 
-    // 3. Define the click-to-hide functionality
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            let selectedNode = params.nodes[0];
-            let neighbors = network.getConnectedNodes(selectedNode);
-            let neighborhood = [selectedNode, ...neighbors];
+# Save final result
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html)
 
-            // Update nodes: hide if not in neighborhood
-            let nodeUpdates = network.body.data.nodes.get().map(n => ({
-                id: n.id,
-                hidden: !neighborhood.includes(n.id)
-            }));
-            network.body.data.nodes.update(nodeUpdates);
+print("Graph built with custom HTML injected.")
 
-            // Update edges: hide if not connected to selected node
-            let edgeUpdates = network.body.data.edges.get().map(e => ({
-                id: e.id,
-                hidden: !(e.from === selectedNode || e.to === selectedNode)
-            }));
-            network.body.data.edges.update(edgeUpdates);
-        }
-    });
-});
-</script>
-"""
-net.html += focus_script
 
 # ======================
 # SAVE HTML

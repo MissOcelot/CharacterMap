@@ -123,5 +123,348 @@
               }
               drawGraph();
         </script>
-    </body>
+            </script>
+        <!-- Show Full Map Button + Click-to-Focus with True Isolation -->
+<div style="position:absolute; top:20px; left:20px; z-index:999;">
+  <button onclick="showFullMap()" style="padding:18px; font-size:14px; background-color:#be2170; color:white; border:none; border-radius:5px; cursor:pointer;">
+    Show Full Map
+  </button>
+</div>
+<!-- Info panel -->
+<div id="infoPanel" style="
+    position:absolute;
+    bottom:10px;      /* position from bottom */
+    right:10px;       /* position from right */
+    z-index:999;
+    background-color:#464646;
+    color:white;
+    padding:10px;
+    border-radius:5px;
+    width:250px;
+    max-height:300px;
+    overflow:auto;
+    font-family:Arial, sans-serif;
+    display:none;
+"></div>
+<script>
+const relationships = {
+    "Colorzip": [
+        { name: "Mycil", type: "Fursona Trio" },
+        { name: "Siouxwu", type: "Fursona Trio" },
+        { name: "Johnny", type: "Son" },
+        { name: "Mazy", type: "Daughter" },
+        { name: "Maybell", type: "Cousin" },
+        { name: "Jacks", type: "Nephew" },
+        { name: "Mika", type: "Neice" },
+        { name: "Harley", type: "Neice" },
+        { name: "Anglais", type: "..." },
+        { name: "Sandy", type: "Sister" },
+    ],
+    "Siouxwu": [
+        { name: "Mycil", type: "Fursona Trio" },
+        { name: "ColorZip", type: "Fursona Trio" },
+    ],
+    "Duskstep": [
+        { name: "Mycil", type: "Cousin" },
+        { name: "Mintie", type: "Crush" },
+        { name: "Smear", type: "Brother" },
+    ],
+    "Mycil": [
+        { name: "Colorzip", type: "Fursona Trio" },
+        { name: "Siouxwu", type: "Fursona Trio" },
+        { name: "Smear", type: "Cousin" },
+        { name: "Duskstep", type: "Cousin" },
+        { name: "Hex", type: "(:" },
+        { name: "Honeydew", type: "Friend" },
+        { name: "Anglais", type: "..." },
+    ],
+    "Smear": [
+        { name: "Mintie", type: "Friend" },
+        { name: "Duskstep", type: "Brother" },
+        { name: "DMycil", type: "Cousin" },
+    ],
+    "Mintie": [
+        { name: "Smear", type: "Friend" },
+        { name: "Duskstep", type: "Friend?" },
+    ],
+    "Hex": [
+        { name: "Mycil", type: "..." },
+        { name: "Honeydew", type: "Summoner" },
+    ],
+    "Honeydew": [
+        { name: "Hex", type: "Summoning victim" },
+        { name: "Mycil", type: "Friend" },
+    ],
+    "Lightning": [],
+    "Qiztote": [],
+    "Ecosia": [
+        { name: "Evosia", type: "Future" },
+    ],
+    "Evosia": [
+        { name: "Ecosia", type: "Past" },
+    ],
+    "Anglais": [
+        { name: "Colorzip", type: "..." },
+        { name: "Mycil", type: "..." },
+    ],
+    "Celise": [
+        { name: "Damore", type: "Girlfriend" },
+    ],
+     "Damore": [
+        { name: "Celise", type: "Girlfriend" },
+    ],
+     "Calie": [
+        { name: "Esme", type: "Sister" },
+        { name: "Miyoni", type: "Friend" },
+    ],
+    "Esme": [
+        { name: "Calie", type: "Sister" },
+        { name: "Miyoni", type: "Friend" },
+    ],
+    "Miyoni": [
+        { name: "Calie", type: "Friend" },
+        { name: "Esme", type: "Friend" },
+    ],
+    "Whispersong": [
+        { name: "Mika", type: "Frienemy" },
+        { name: "Johnny", type: "Enemy" },
+        { name: "Embertail", type: "Friend" },
+        { name: "Hazelmist", type: "Friend" },
+    ],
+    "Hazelmist": [
+        { name: "Whispersong", type: "Friend" },
+        { name: "Embertail", type: "Friend" },
+    ],
+    "Embertail": [
+        { name: "Hazelmist", type: "Friend" },
+        { name: "Whispersong", type: "Friend" },
+    ],
+    "Johnny": [
+        { name: "Colorzip", type: "Mother" },
+        { name: "Mazy", type: "Sister" },
+        { name: "Whispersong", type: "Enemy" },
+        { name: "Mika", type: "Cousin" },
+        { name: "Harley", type: "Cousin" },
+        { name: "Maybell", type: "Cousin" },
+    ],
+    "Mazy": [
+        { name: "Colorzip", type: "Mother" },
+        { name: "Johnny", type: "Brother" },
+        { name: "Jacks", type: "Cousin" },
+        { name: "Mika", type: "Cousin" },
+        { name: "Harley", type: "Cousin" },
+    ],
+    "Jacks": [
+        { name: "Colorzip", type: "Aunt" },
+        { name: "Mazy", type: "Cousin" },
+        { name: "Mika", type: "Sister" },
+        { name: "Harley", type: "Sister" },
+        { name: "Mittens", type: "Acquaintance" },
+    ],
+    "Mika": [
+        { name: "Harley", type: "Sister" },
+        { name: "Colorzip", type: "Aunt" },
+        { name: "Mazy", type: "Cousin" },
+        { name: "Jacks", type: "Brother" },
+        { name: "Whispersong", type: "Frienemy" },
+        { name: "Johnny", type: "Cousin" },
+        { name: "Mittens", type: "Enemy" },
+        { name: "Maybell", type: "Cousin" },
+    ],
+    "Harley": [
+        { name: "Mika", type: "Sister" },
+        { name: "Colorzip", type: "Aunt" },
+        { name: "Mittens", type: "Enemy" },
+        { name: "Mazy", type: "Cousin" },
+        { name: "Johnny", type: "Cousin" },
+        { name: "Jacks", type: "Brother (Enemy)" },
+    ],
+    "Sandy": [
+        { name: "Colorzip", type: "Sister" },
+    ],
+    "Mittens": [
+        { name: "Jacks", type: "Acquaintance" },
+        { name: "Mika", type: "Enemy" },
+        { name: "Harley", type: "Enemy" },
+    ],
+    "Maybell": [
+        { name: "Colorzip", type: "Cousin" },
+        { name: "Johnny", type: "Cousin" },
+        { name: "Mika", type: "Cousin" },
+    ],
+ 
+    // Add all characters here...
+};
+</script>
+<script>
+network.on("click", function(params) {
+  if(params.nodes.length === 0) return;
+
+  let selected = params.nodes[0];
+  let connected = network.getConnectedNodes(selected);
+  connected.push(selected);
+
+  // Show only clicked node + neighbors
+  network.body.data.nodes.get().forEach(n => {
+    network.body.data.nodes.update({id:n.id, hidden: !connected.includes(n.id)});
+  });
+
+  network.body.data.edges.get().forEach(e => {
+    let fromSelected = e.from === selected;
+    let toSelected = e.to === selected;
+    network.body.data.edges.update({id:e.id, hidden: !(fromSelected || toSelected)});
+  });
+
+  // --- Update info panel ---
+  const panel = document.getElementById("infoPanel");
+  const rels = relationships[selected] || [];
+  if (rels.length === 0) {
+    panel.innerHTML = "<b>" + selected + "</b><br>No listed connections.";
+  } else {
+    let html = "<b>" + selected + "</b><br><ul>";
+    rels.forEach(r => {
+      html += "<li><b>" + r.name + "</b>: " + r.type + "</li>";
+    });
+    html += "</ul>";
+    panel.innerHTML = html;
+  }
+  panel.style.display = "block"; // show panel
+});
+</script>
+<script>
+
+window.addEventListener("load", function() {
+
+    network.setOptions({
+
+         physics: {
+            enabled: true,
+
+            barnesHut: {
+                gravitationalConstant: -2000,
+                centralGravity: 0.2,
+                springLength: 150,
+                springConstant: 0.04,
+                damping: 0.4,
+                avoidOverlap: 0.75
+            },
+
+            stabilization: {
+                enabled: true,
+                iterations: 150
+            }
+        },
+
+        interaction: {
+            dragNodes: true,
+            dragView: true,
+            zoomView: true
+        }
+
+    });
+
+
+</script>
+<script>
+function showFullMap() {
+  // Reset all nodes and edges to visible
+  network.body.data.nodes.get().forEach(n => network.body.data.nodes.update({id:n.id, hidden:false}));
+  network.body.data.edges.get().forEach(e => network.body.data.edges.update({id:e.id, hidden:false}));
+}
+
+network.on("click", function(params) {
+  if(params.nodes.length === 0) return;
+
+  let selected = params.nodes[0];
+  let connected = network.getConnectedNodes(selected);
+  connected.push(selected);
+
+  // Show only the clicked node + its neighbors
+  network.body.data.nodes.get().forEach(n => {
+    network.body.data.nodes.update({id:n.id, hidden: !connected.includes(n.id)});
+  });
+
+  // Show only edges that touch the selected node (sever other connections)
+  network.body.data.edges.get().forEach(e => {
+    let fromSelected = e.from === selected;
+    let toSelected = e.to === selected;
+    network.body.data.edges.update({id:e.id, hidden: !(fromSelected || toSelected)});
+  });
+});
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: linear-gradient(
+        180deg,
+        #69227a,
+        #4e2674,
+        #33298f
+    );
+
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    color: white;
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: 800;
+}
+
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* this is the network container created by PyVis */
+#mynetwork {
+    width: 100vw !important;
+    height: 100vh !important;
+
+    background: transparent !important;  /* removes grey box */
+
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* also remove PyVis wrapper background if present */
+.vis-network {
+    background: transparent !important;
+}
+
+/* prevent weird mobile scroll bounce */
+body {
+    position: fixed;
+}
+
+</style>
+<script>
+
+if (window.innerWidth < 700) {
+
+    network.body.data.nodes.update(
+        network.body.data.nodes.get().map(n => ({
+            id: n.id,
+            size: 60
+        }))
+    );
+
+}
+
+</script>
+</body>
 </html>
