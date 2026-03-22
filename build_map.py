@@ -8,6 +8,7 @@ import os
 
 PLACEHOLDER = "icons/placeholder.png"
 
+
 # Character connections (normalized)
 raw_connections = {
     "Colorzip": ["Mycil","Siouxwu","Anglais","Sandy","Johnny","Mazy","Mika","Harley","Jacks","Maybell"],

@@ -1,7 +1,7 @@
         </script>
         <!-- Show Full Map Button + Click-to-Focus with True Isolation -->
 <div style="position:absolute; top:20px; left:20px; z-index:999;">
-  <button onclick="showFullMap()" style="padding:18px; font-size:14px; background-color:#be2170; color:white; border:none; border-radius:5px; cursor:pointer;">
+  <button onclick="showFullMap()" style="padding:18px; font-size:18px; background-color:#be2170; color:white; border:none; border-radius:5px; cursor:pointer;">
     Show Full Map
   </button>
 </div>
@@ -18,7 +18,8 @@
     width:250px;
     max-height:300px;
     overflow:auto;
-    font-family:Arial, sans-serif;
+    overflow-y: auto;  
+    font-family:Verdana, sans-serif;
     display:none;
 "></div>
 <script>
@@ -56,7 +57,7 @@ const relationships = {
     "Smear": [
         { name: "Mintie", type: "Friend" },
         { name: "Duskstep", type: "Brother" },
-        { name: "DMycil", type: "Cousin" },
+        { name: "Mycil", type: "Cousin" },
     ],
     "Mintie": [
         { name: "Smear", type: "Friend" },
@@ -212,6 +213,16 @@ window.addEventListener("load", function() {
 
     network.setOptions({
 
+         nodes: {
+            font: {
+                size: 22,
+                face: "Inter",
+                color: "#ffffff",
+                strokeWidth: 2,
+                strokeColor: "#000000"
+            }
+        }
+
          physics: {
             enabled: true,
 
@@ -237,6 +248,7 @@ window.addEventListener("load", function() {
         }
 
     });
+});
 
 
 </script>
@@ -283,7 +295,7 @@ body {
     );
 
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: 24px;
     color: white;
 }
 
@@ -341,3 +353,31 @@ if (window.innerWidth < 700) {
 }
 
 </script>
+<div style="
+position: fixed;
+top: 60px;
+right: 10px;
+z-index: 9999;
+background: rgba(0,0,0,0.5);
+padding: 10px;
+border-radius: 8px;
+">
+
+<input type="range" min="0.2" max="2.5" step="0.01" value="1"
+oninput="setZoom(this.value)">
+
+</div>
+<div style="
+position: fixed;
+top: 60px;
+right: 10px;
+z-index: 9999;
+background: rgba(0,0,0,0.5);
+padding: 10px;
+border-radius: 8px;
+">
+
+<input type="range" min="0.2" max="2.5" step="0.01" value="1"
+oninput="setZoom(this.value)">
+
+</div>
