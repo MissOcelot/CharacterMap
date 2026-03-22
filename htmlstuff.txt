@@ -18,10 +18,27 @@
     width:250px;
     max-height:300px;
     overflow:auto;
-    overflow-y: auto;  
     font-family:Verdana, sans-serif;
     display:none;
 "></div>
+<div style="
+position: fixed;
+top: 80px;
+right: 10px;
+z-index: 9999;
+background: rgba(0,0,0,0.6);
+padding: 10px;
+border-radius: 8px;
+">
+
+<input id="zoomSlider"
+type="range"
+min="0.2"
+max="2.5"
+step="0.01"
+value="1">
+
+</div>
 <script>
 const relationships = {
     "Colorzip": [
@@ -209,11 +226,14 @@ network.on("click", function(params) {
 </script>
 <script>
 
+<script>
+
 window.addEventListener("load", function() {
 
+    // ✅ Set network options
     network.setOptions({
 
-         nodes: {
+        nodes: {
             font: {
                 size: 22,
                 face: "Inter",
@@ -221,11 +241,10 @@ window.addEventListener("load", function() {
                 strokeWidth: 2,
                 strokeColor: "#000000"
             }
-        }
+        },
 
-         physics: {
+        physics: {
             enabled: true,
-
             barnesHut: {
                 gravitationalConstant: -2000,
                 centralGravity: 0.2,
@@ -234,7 +253,6 @@ window.addEventListener("load", function() {
                 damping: 0.4,
                 avoidOverlap: 0.75
             },
-
             stabilization: {
                 enabled: true,
                 iterations: 150
@@ -248,7 +266,38 @@ window.addEventListener("load", function() {
         }
 
     });
+
+    //  Zoom slider
+    const slider = document.getElementById("zoomSlider");
+
+    slider.addEventListener("input", function() {
+        network.moveTo({
+            scale: parseFloat(this.value),
+            animation: {
+                duration: 200,
+                easingFunction: "easeInOutQuad"
+            }
+        });
+    });
+
+    //  Sync slider with pinch zoom
+    network.on("zoom", function(params) {
+        slider.value = params.scale;
+    });
+
+    //  Mobile: bigger nodes
+    if (window.innerWidth < 700) {
+        network.body.data.nodes.update(
+            network.body.data.nodes.get().map(n => ({
+                id: n.id,
+                size: 60
+            }))
+        );
+    }
+
 });
+
+</script>
 
 
 </script>
@@ -259,26 +308,6 @@ function showFullMap() {
   network.body.data.edges.get().forEach(e => network.body.data.edges.update({id:e.id, hidden:false}));
 }
 
-network.on("click", function(params) {
-  if(params.nodes.length === 0) return;
-
-  let selected = params.nodes[0];
-  let connected = network.getConnectedNodes(selected);
-  connected.push(selected);
-
-  // Show only the clicked node + its neighbors
-  network.body.data.nodes.get().forEach(n => {
-    network.body.data.nodes.update({id:n.id, hidden: !connected.includes(n.id)});
-  });
-
-  // Show only edges that touch the selected node (sever other connections)
-  network.body.data.edges.get().forEach(e => {
-    let fromSelected = e.from === selected;
-    let toSelected = e.to === selected;
-    network.body.data.edges.update({id:e.id, hidden: !(fromSelected || toSelected)});
-  });
-});
-</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
@@ -313,7 +342,24 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+}
+
+/* allow scrolling */
+body {
+    overflow-y: auto;
+}
+
+/* make network not trap entire screen */
+#mynetwork {
+    width: 100vw 
+    height: 75vh 
+}
+
+/* desktop full screen */
+@media (min-width: 800px) {
+    #mynetwork {
+        height: 100vh !important;
+    }
 }
 
 /* this is the network container created by PyVis */
@@ -323,7 +369,10 @@ html, body {
 
     background: transparent !important;  /* removes grey box */
 
-    position: absolute;
+    position: fixed;
+    max-width: 90vw;
+    max-height: 40vh;
+    overflow-y: auto;
     top: 0;
     left: 0;
 }
@@ -353,31 +402,3 @@ if (window.innerWidth < 700) {
 }
 
 </script>
-<div style="
-position: fixed;
-top: 60px;
-right: 10px;
-z-index: 9999;
-background: rgba(0,0,0,0.5);
-padding: 10px;
-border-radius: 8px;
-">
-
-<input type="range" min="0.2" max="2.5" step="0.01" value="1"
-oninput="setZoom(this.value)">
-
-</div>
-<div style="
-position: fixed;
-top: 60px;
-right: 10px;
-z-index: 9999;
-background: rgba(0,0,0,0.5);
-padding: 10px;
-border-radius: 8px;
-">
-
-<input type="range" min="0.2" max="2.5" step="0.01" value="1"
-oninput="setZoom(this.value)">
-
-</div>
